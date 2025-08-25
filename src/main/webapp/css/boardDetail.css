@@ -1,0 +1,101 @@
+@charset "UTF-8";
+
+/* 색상 변수 */
+:root {
+  --bg: #fff;
+  --card: #fff;
+  --text: #111;
+  --muted: #555;
+  --line: #ddd;
+  --primary: #000;
+  --primary-hover: #333;
+  --danger: #dc3545;
+  --danger-hover: #a71d2a;
+  --radius: 6px;
+  --shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 메인 컨테이너 */
+main.container {
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 카드 스타일 */
+.post-card {
+  background-color: var(--card);
+  padding: 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 메타 정보 */
+.meta-box {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.meta-box span strong {
+  color: var(--text);
+}
+
+/* 글 제목 */
+.post-title {
+  font-size: 1.8rem;
+  text-align: center;
+  color: var(--primary);
+  margin: 10px 0;
+}
+
+/* 본문 내용 */
+.content-box {
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+  margin-bottom: 20px;
+}
+
+/* 버튼 영역 */
+.btn-box {
+  display: flex;
+  justify-content: right;
+  gap: 15px;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-delete {
+  background-color: var(--danger);
+}
+
+.btn-delete:hover {
+  background-color: var(--danger-hover);
+}

@@ -17,7 +17,7 @@
        <ul>
            <li><a href="insert.jsp">홈</a></li>
            <li><a href="#">진료 안내</a></li>
-           <li><a href="questionBoard.jsp">문의 게시판</a></li>
+           <li><a href="inquiry.do">문의 게시판</a></li>
            <li><a href="login.jsp">로그인</a></li>
         </ul>
    </nav>
