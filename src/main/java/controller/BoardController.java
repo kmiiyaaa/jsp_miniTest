@@ -15,11 +15,13 @@ import java.util.List;
 import dao.BoardDao;
 import dao.MemberDao;
 import dto.BoardDto;
+import dto.CommentDto;
+import dto.MemberDto;
 
 
 @WebServlet("*.do")
 public class BoardController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+	private static final int PAGE_GROUP_SIZE = 10 ; 
        
     public BoardController() {
       
@@ -53,23 +55,52 @@ public class BoardController extends HttpServlet {
 			 String searchType = request.getParameter("searchType");
 			 String searchKeyword = request.getParameter("searchKeyword");
 			 int totalContent = boardDao.countBoard();
+			 int page = 1;
 			 
 			 
-			 // 검색어가 있으면 검색된 글 수 카운트
-			 if(searchType != null && searchKeyword != null && !searchKeyword.strip().isEmpty()) {
+
+		if(request.getParameter("page") == null) {   // 참이면 링크타고 게시판으로 들어온 경우
+			page = 1;  // 무조건 첫페이지를 보여주게 됨
+				
+		} else { //유저가 보고 싶은 페이지 번호를 클릭한 경우
+			page = Integer.parseInt(request.getParameter("page"));  //유저가 클릭한 유저가 보고 싶어하는 페이지의 번호
+		}
+							
+			 
+	 // 검색어가 있으면 검색된 글 수 카운트
+		if(searchType != null && searchKeyword != null && !searchKeyword.strip().isEmpty()) {
 				 
-				 totalContent = boardDao.countSearch(searchType, searchKeyword);
-				 bDtos = boardDao.searchBoardList(searchKeyword, searchType);
+		 totalContent = boardDao.countSearch(searchType, searchKeyword);
+		 bDtos = boardDao.searchBoardList(searchKeyword, searchType, page);
 				 
-				 request.setAttribute("searchType", searchType);
-				 request.setAttribute("searchKeyword", searchKeyword);
-			 } else {
-				 totalContent = boardDao.countBoard();
-				 bDtos = boardDao.boardList();
-			 }
-				 
+		 request.setAttribute("searchType", searchType);
+		request.setAttribute("searchKeyword", searchKeyword);
+		} else {
+		 totalContent = boardDao.countBoard();
+		 bDtos = boardDao.boardList(page);
+		 
+		 
+	 }
 		
-			 request.setAttribute("bDtos", bDtos);
+		int totalPage = (int) Math.ceil((double)totalContent / BoardDao.PAGE_SIZE ) ;
+		int startPage = (((page-1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE)+1 ;
+		int endPage = startPage + (PAGE_GROUP_SIZE -1); // 게시글 없는 페이지까지 출력된다
+		
+		
+		
+		//마지막 페이지 그룹인 경우에는 실제마지막 페이지로 표시
+		// 글갯수 437 - 44페이지 , 실제 endpage는 44로변경
+		if (endPage > totalPage) {
+			endPage = totalPage;  //  totalPage = 실제 마지막 페이지값 (437 -> 44)
+		}
+	
+				 
+      request.setAttribute("bDtos", bDtos);  // 위에 둘중하나 경우를 request 객체에 싣고 포워딩해주는거
+	  request.setAttribute("currentPage", page);
+	  request.setAttribute("totalPage", totalPage);
+	  request.setAttribute("startPage", startPage);
+      request.setAttribute("endPage", endPage); // 페이지 그룹 출력시 마지막 페이지번호	
+		
 			 
 			 viewPage = "inquiryBoard.jsp";
 			 
@@ -99,7 +130,7 @@ public class BoardController extends HttpServlet {
 			String bnum = request.getParameter("bnum");
 			BoardDto boardDto = boardDao.contentView(bnum);
 			
-			if(boardDto.getMemberid().equals(sid)) {
+			if(boardDto.getMemberid().equals(sid) || "admin".equals(sid)) {
 				request.setAttribute("boardDto", boardDto);
 				viewPage =  "modify.jsp";
 			} else {
@@ -120,7 +151,7 @@ public class BoardController extends HttpServlet {
 			 BoardDto boardDto = boardDao.getBoardDetail(bnum);
 			 request.setAttribute("boardDto", boardDto);
 			 
-			 viewPage="contentView.do";
+			 viewPage="content.do";
 			 
 		// 글내용 보기
 		 } else if (comm.equals("/content.do")) {
@@ -150,7 +181,7 @@ public class BoardController extends HttpServlet {
 			 String sid = (String)session.getAttribute("sid");
 			 BoardDto boardDto = boardDao.contentView(bnum);
 			 
-			 if(boardDto.getMemberid().equals(sid)) {  // 로그인 한 상태
+			 if(boardDto.getMemberid().equals(sid) || "admin".equals(sid)) {  // 로그인 한 상태
 				 boardDao.boardDelete(bnum);
 				 viewPage="inquiry.do";
 			 } else {
@@ -186,14 +217,13 @@ public class BoardController extends HttpServlet {
 			 
 			 viewPage ="login.jsp";
 			 
-		 } else if (comm.equals("loginOk.do")) {
+		 } else if (comm.equals("/loginOk.do")) {
 			 request.setCharacterEncoding("utf-8");
 			 
 			 String loginId = request.getParameter("id");
 			 String loginPw = request.getParameter("pw");
 			 
 			 int loginFlag = memberDao.loginCheck(loginId, loginPw);
-			 
 			 if(loginFlag ==1) {
 				 session = request.getSession();
 				 session.setAttribute("sid", loginId);
@@ -204,9 +234,67 @@ public class BoardController extends HttpServlet {
 			 
 			 viewPage = "inquiry.do";
 			 
-		 } else if(comm.equals("index.do")) {  // 아마도 회원정보?
-			 viewPage="index.jsp";
+		 } else if (comm.equals("/logout.do")) {
+				    session = request.getSession(false);
+				    if(session != null) {
+				        session.invalidate(); // 세션 전체 삭제
+				    }
+				    response.sendRedirect("login.do?msg=3"); // 로그아웃 완료 메시지
+				    return;
+				}
+		 
+		  
 			 
+	// 회원정보 수정 폼 이동
+		 else if(comm.equals("/memberEdit.do")) {
+			    String sid = (session != null) ? (String) session.getAttribute("sid") : null;
+
+			    if (sid != null) {
+			        MemberDto member = memberDao.getMember(sid);
+			        request.setAttribute("memberdto", member);
+			        viewPage = "memberEdit.jsp";
+			        
+			    } else {
+			        response.sendRedirect("login.do?msg=2");
+			        return;
+			    }
+		     }
+
+		 // 회원정보 수정 완료
+		 else if (comm.equals("/memberEditOk.do")) {
+
+			 request.setCharacterEncoding("utf-8");
+			  // 수정된 데이터 처리
+	            String memberid = request.getParameter("memberid");
+	            String name = request.getParameter("membername");
+	            String email = request.getParameter("memberemail");
+	            String pw = request.getParameter("memberpw");
+
+	            MemberDto member = new MemberDto(memberid, name, email, pw);
+	            int result = memberDao.updateMember(member);
+
+	            if (result > 0) {
+	                request.setAttribute("msg", "회원정보가 수정되었습니다.");
+	                viewPage = "memberEdit.jsp"; // 다시 수정페이지 or 마이페이지
+	            } else {
+	                request.setAttribute("msg", "수정 실패. 다시 시도해주세요.");
+	                viewPage = "memberEdit.jsp";
+	            }
+	        
+		 } else if(comm.equals("/commentOk.do")) { //댓글 등록요청
+				request.setCharacterEncoding("utf-8");
+				
+				String bnum = request.getParameter("bnum"); //원글
+				String comment = request.getParameter("comment"); //댓글
+				
+				session = request.getSession();
+				String commentId = (String) session.getAttribute("sessionId"); //현재 로그인되어 있는 아이디(댓글 쓴 아이디)
+				System.out.println(commentId);
+				boardDao.commentWrite(bnum, commentId, comment); //댓글 쓰기 실행
+				
+				response.sendRedirect("content.do?bnum="+bnum);
+				return;
+			
 		 } else {
 			 viewPage="insert.jsp";
 		 }

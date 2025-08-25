@@ -73,11 +73,16 @@ main.container {
 /* 버튼 영역 */
 .btn-box {
   display: flex;
-  justify-content: right;
+  justify-content: flex-end; /* right -> flex-end로 표준화 */
   gap: 15px;
 }
 
-.btn {
+/* 공통 버튼 스타일 */
+.btn-box a {
+  text-decoration: none; /* 링크 밑줄 제거 */
+}
+
+.btn-box a button {
   padding: 10px 20px;
   background-color: var(--primary);
   color: #fff;
@@ -88,14 +93,15 @@ main.container {
   transition: 0.3s;
 }
 
-.btn:hover {
+.btn-box a button:hover {
   background-color: var(--primary-hover);
 }
 
-.btn-delete {
+/* 삭제 버튼 스타일 */
+.btn-box a .btn-delete {
   background-color: var(--danger);
 }
 
-.btn-delete:hover {
+.btn-box a .btn-delete:hover {
   background-color: var(--danger-hover);
 }

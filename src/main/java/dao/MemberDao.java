@@ -22,6 +22,10 @@ public class MemberDao {
 	
 	public static final int MEMBER_JOIN_SUCCESS = 1;  // 상수화 - 대문자로 적어준다
 	public static final int MEMBER_JOIN_FAIL = 0;
+	public static final int MEMBER_ID_EXISTENT = 1;
+	public static final int MEMBER_ID_NONE = 0;
+	public static final int LOGIN_SUCESS = 1;
+	public static final int LOGIN_FAIL = 0;
 	
 	
 	public int loginCheck(String mid, String mpw) {
@@ -38,14 +42,14 @@ public class MemberDao {
 			  rs = pstmt.executeQuery();
 			  
 			  if(rs.next()) {  // 로그인 성공
-				sqlResult = 1;
+				sqlResult = LOGIN_SUCESS;
 			  } else {
-				  sqlResult = 0;
+				  sqlResult = LOGIN_FAIL;
 			  }
 
 	
 		  } catch(Exception e) {
-			
+			System.out.println("로그인 체크 실패!"); 
 			e.printStackTrace();
 		
 		}finally {
@@ -64,12 +68,12 @@ public class MemberDao {
 			}
 		}
 
-		return sqlResult;
+		return sqlResult;   // 로그인성공시 1 반환, 실패시 0반환
 		
 		
 	}public int insertMember(MemberDto memberDto) {  // 회원 가입 메서드, ()안에 매개변수 잊지말기
 		
-		String sql = "INSERT INTO membertbl(membrid, memberpw, membername,  memberemail) Values(?,?,?,?)";
+		String sql = "INSERT INTO members(memberid, memberpw, membername, memberemail) Values(?,?,?,?)";
 		
 		int sqlResult = 0;
 		
@@ -81,7 +85,7 @@ public class MemberDao {
 			pstmt.setString(1, memberDto.getMemberid()); 
 			pstmt.setString(2, memberDto.getMemberpw()); 
 			pstmt.setString(3, memberDto.getMembername()); 
-			pstmt.setString(5, memberDto.getMemberemail()); 
+			pstmt.setString(4, memberDto.getMemberemail()); 
 			
 		
 			sqlResult = pstmt.executeUpdate();  // 성공하면 sqlResult값이 1로 변환
@@ -111,5 +115,146 @@ public class MemberDao {
 			return MEMBER_JOIN_FAIL;
 		}
 	}
+	
+	public int confirmId(String id) {
+		String sql = "SELECT * FROM members WHERE memberid=?";
+		int sqlResult =0;
+		
+		try {
+			
+			  Class.forName(driverName); 
+			  conn = DriverManager.getConnection(url, userName, password);
+			  pstmt = conn.prepareStatement(sql);
+			  pstmt.setString(1, id);
+			  rs = pstmt.executeQuery();
+			  
+			  if(rs.next()) {  // 아이디 중복(가입불가)
+				sqlResult = MEMBER_ID_EXISTENT;
+			  } else {
+				  sqlResult = MEMBER_ID_NONE;   // 가입가능
+			  }
 
+	
+		  } catch(Exception e) {
+			
+			e.printStackTrace();
+		
+		}finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(conn != null) {
+					conn.close();
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return sqlResult;  //1 나오면
+		
+		
+	}
+	
+	
+// 회원한명조회	
+	public MemberDto getMember(String memberid) {
+		
+		MemberDto member = null;
+		
+		String sql = "SELECT * FROM members WHERE memberid=?";
+		
+		try {
+			
+			  Class.forName(driverName); 
+			  conn = DriverManager.getConnection(url, userName, password);
+			  pstmt = conn.prepareStatement(sql);
+			  pstmt.setString(1, memberid);
+			  rs = pstmt.executeQuery();
+			  
+			  if(rs.next()) {  
+				  
+				member = new MemberDto(
+				rs.getString("memberid"),
+				 rs.getString("membername"),
+				 rs.getString("memberemail"),
+				 rs.getString("memberpw")
+				);  
+			  }
+
+	
+		  } catch(Exception e) {
+			
+			e.printStackTrace();
+		
+		}finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(conn != null) {
+					conn.close();
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return member;  //1 나오면
+		
+		
+		
+	}
+	
+//회원정보 수정
+	public int updateMember(MemberDto member) {
+		
+		int result = 0;
+		String sql = "UPDATE members SET membername=? , memberemail=?, memberpw=? WHERE memberid=?";
+		
+	try {	
+		
+	
+		Class.forName(driverName); 
+		conn = DriverManager.getConnection(url, userName, password);
+		
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setString(1, member.getMembername());
+        pstmt.setString(2, member.getMemberemail());
+        pstmt.setString(3, member.getMemberpw());
+        pstmt.setString(4, member.getMemberid());
+		
+	
+		result = pstmt.executeUpdate();  // 성공하면 sqlResult값이 1로 변환
+	 
+		
+	} catch (Exception e) {
+		System.out.println("db 에러 발생"); 
+		e.printStackTrace();  //에러 내용 출력
+		
+	} finally {  // finally : 에러 유무와 상관없이 무조건 실행할 내용 입력 -> 여기선 에러와 상관없이 커넥션 닫기
+		try {
+			if(pstmt != null){  // stmt가 null이 아니면 닫기 --- conn보다 먼저 닫아야한다
+				pstmt.close();
+			}
+			
+			if(conn != null) {  // 커넥션이 null값이 아닐때만 닫기
+				conn.close();
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	return result;
+
+	}
+	
 }

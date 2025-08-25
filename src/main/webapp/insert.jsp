@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -69,9 +71,45 @@
             </p>
         </div>
     </section>
+    
 
 
 </main>
+  <!-- 페이지네이션 -->
+
+	<div class="pagination">
+
+	<!-- 첫번째 페이지로 이동 화살표 (1페이지로 이동)-->
+	<c:if test="${currentPage > 1 }">
+		<a href="boardList.do?page=1&search=${search}&searchKeyword=${searchKeyword}">◀◀</a>
+	</c:if>
+	
+	<!-- 페이지 그룹이동 -->
+	<c:if test="${startPage > 1}">
+		<a href="boardList.do?page=${startPage - 1}&search=${search}&searchKeyword=${searchKeyword}"> ◀ </a>
+	</c:if>
+	
+	<c:forEach begin="${startPage}" end="${endPage}" var="i">
+    <c:choose>
+        <c:when test="${i == currentPage}">
+            <a class="active" href="boardList.do?page=${i}&search=${search}&searchKeyword=${searchKeyword}">${i}</a>
+        </c:when>
+        <c:otherwise>
+            <a href="boardList.do?page=${i}&search=${search}&searchKeyword=${searchKeyword}">${i}</a>
+        </c:otherwise>
+    </c:choose>
+</c:forEach>
+	
+  
+   <!--그룹 이동-->
+  <c:if test="${endPage < totalPage}">   <!-- > 말고 != 써도가능 -->
+  	<a href="boardList.do?page=${endPage + 1}&search=${search}&searchKeyword=${searchKeyword}">▶</a>
+  </c:if>
+  <!-- 마지막 페이지로 이동 화살표-->
+  <c:if test="${currentPage < totalPage}">
+  	<a href="boardList.do?page=${totalPage}&search=${search}&searchKeyword=${searchKeyword}" >▶▶</a>
+  </c:if>
+
 
 <%@ include file="include/footer.jsp" %>
 

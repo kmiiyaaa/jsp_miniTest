@@ -1,0 +1,114 @@
+@charset "UTF-8";
+
+
+/* 색상 변수 */
+:root {
+    --bg: #f8f9fa;           /* 페이지 전체 배경 */
+    --card: #fff;             /* 폼/카드 배경 */
+    --text: #111;             /* 기본 텍스트 */
+    --muted: #555;            /* 보조 텍스트 */
+    --line: #ddd;             /* 입력창/구분선 */
+    --primary: #000;          /* 버튼 기본 */
+    --primary-hover: #333;    /* 버튼 호버 */
+    --radius: 8px;            /* 둥근 모서리 */
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* 공통 컨테이너 */
+.container {
+    width: 95%;
+    max-width: 700px;          /* 넓게 조정 */
+    margin: 50px auto;
+    padding: 30px 40px;
+    background-color: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 페이지 제목 */
+.page-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* 공통 폼 스타일 */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+form input[type="text"],
+form input[type="password"],
+form input[type="email"],
+form textarea {
+    padding: 12px 15px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    width: 100%;               /* 넓게 적용 */
+    box-sizing: border-box;
+}
+
+/* 버튼 스타일 */
+form input[type="submit"],
+form input[type="reset"],
+form button {
+    margin-top: 20px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius);
+    background-color: var(--primary);
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    align-items: center;
+}
+
+form input[type="submit"]:hover,
+form input[type="reset"]:hover,
+form button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* 버튼 가로 정렬 */
+.form-buttons {
+    display: flex;
+    justify-content: flex-start;  /* 필요 시 center 또는 space-between */
+    gap: 10px;
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    form input[type="submit"],
+    form input[type="reset"] {
+        width: 48%;  /* 모바일에서 버튼 옆으로 나란히 */
+    }
+
+    .form-buttons {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}

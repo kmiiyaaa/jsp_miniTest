@@ -1,6 +1,7 @@
 <%@page import="dto.BoardDto"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core" %>
 <%
 	BoardDto boardDto = (BoardDto) request.getAttribute("boardDto");
 	boolean isEdit = (boardDto != null);
@@ -15,7 +16,7 @@
 <head>
 <meta charset="UTF-8">
 <title><%= isEdit ? "글 수정" : "글 작성" %></title>
-<link rel="stylesheet" href="css/boardStyle.css">
+<link rel="stylesheet" href="css/edit.css">
 </head>
 <body>
 <%@ include file="include/header.jsp" %>
