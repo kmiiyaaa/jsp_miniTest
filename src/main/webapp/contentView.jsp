@@ -46,21 +46,23 @@
 
 	<div>
 			<hr>
-			<h3>댓글</h3>
-			<hr>
 		<form action="commentOk.do">
   		<input type="hidden" name="bnum" value="${boardDto.bnum}"><!-- 원글의 번호 반드시 전송 -->
-  		<input type="text" name="comment" size="80">
+  	 <b>댓글 작성</b> : 	<input type="text" name="comment" size="80">
   		<input type="submit" value="작성완료">
   	</form>
 	</div>
 	<div>
 		<hr>
-		<c:forEach items="${commentDtos }" var="commentDto">
-			<h4>작성자 : ${commentDto.memberid }</h4>
-			<h4>내용 : ${commentDto.comment }</h4>
-			<h4>작성일시 : ${commentDto.cdate }</h4>
-		</c:forEach>
+		<div class="comment-container">
+    <c:forEach items="${commentDtos }" var="commentDto">
+        <div class="comment-card">
+            <span class="comment-author">${commentDto.memberid}</span> :
+            <span class="comment-text">${commentDto.comment}</span>|
+            <span class="comment-date">${commentDto.cdate}</span>
+        </div>
+    </c:forEach>
+</div>
 	</div>
 <%@ include file="include/footer.jsp" %>
 </main>

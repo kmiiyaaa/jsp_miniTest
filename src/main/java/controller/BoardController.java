@@ -156,21 +156,24 @@ public class BoardController extends HttpServlet {
 		// 글내용 보기
 		 } else if (comm.equals("/content.do")) {
 				
-				String bnum = request.getParameter("bnum");
-				
-				boardDao.updateBhit(bnum);  // 조회수 증가
-				
-				BoardDto boardDto =boardDao.contentView(bnum);
-				
-				
-				if(boardDto == null) {  // 해당글 존재하지 않는 경우
-					response.sendRedirect("contentView.jsp?msg=1");
-					return;
-				}
-				
-				request.setAttribute("boardDto", boardDto);
-				
-				viewPage="contentView.jsp";
+			 String bnum = request.getParameter("bnum");
+			    boardDao.updateBhit(bnum);  // 조회수 증가
+			    
+			    BoardDto boardDto = boardDao.contentView(bnum);
+			    
+			    if(boardDto == null) {  // 해당글 존재하지 않는 경우
+			        response.sendRedirect("contentView.jsp?msg=1");
+			        return;
+			    }
+			    
+			    // 게시글 DTO 전달
+			    request.setAttribute("boardDto", boardDto);
+
+			    // 댓글 목록 가져오기 추가!
+			    List<CommentDto> commentDtos = boardDao.commentList(bnum);
+			    request.setAttribute("commentDtos", commentDtos);
+			    
+			    viewPage="contentView.jsp";
 				
 		// 글 삭제	
 		 } else if(comm.equals("/delete.do")) {
@@ -287,12 +290,15 @@ public class BoardController extends HttpServlet {
 				String bnum = request.getParameter("bnum"); //원글
 				String comment = request.getParameter("comment"); //댓글
 				
-				session = request.getSession();
-				String commentId = (String) session.getAttribute("sessionId"); //현재 로그인되어 있는 아이디(댓글 쓴 아이디)
-				System.out.println(commentId);
-				boardDao.commentWrite(bnum, commentId, comment); //댓글 쓰기 실행
-				
-				response.sendRedirect("content.do?bnum="+bnum);
+				session = request.getSession(false); // 기존 세션 가져오기, 없으면 null
+				if(session == null || session.getAttribute("sid") == null) {
+				    response.sendRedirect("login.do?msg=2"); // 로그인 안 되어 있음
+				    return;
+				}
+
+				String commentId = (String) session.getAttribute("sid");
+				boardDao.commentWrite(bnum, commentId, comment);
+				response.sendRedirect("content.do?bnum=" + bnum);
 				return;
 			
 		 } else {
