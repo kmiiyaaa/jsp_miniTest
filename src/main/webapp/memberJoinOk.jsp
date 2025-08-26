@@ -32,7 +32,9 @@ memberDto.setMemberemail(request.getParameter("memberemail"));
 				int result = memberDao.insertMember(memberDto);
 				// 1(성공) 또는 0(실패) 반환
 				if(result == MemberDao.MEMBER_JOIN_SUCCESS) {
-					out.println("<script>alert('회원 가입 성공!');</script>");
+					out.println("<script>alert('회원 가입 성공 로그인 해 주세요!');</script>");
+					response.sendRedirect("login.jsp");
+					return;
 					
 				} else {
 					out.println("<script>alert('회원 가입 실패!');history.go(-1);</script>");
