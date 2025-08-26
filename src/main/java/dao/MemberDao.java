@@ -165,7 +165,6 @@ public class MemberDao {
 	public MemberDto getMember(String memberid) {
 		
 		MemberDto member = null;
-		
 		String sql = "SELECT * FROM members WHERE memberid=?";
 		
 		try {
@@ -177,16 +176,12 @@ public class MemberDao {
 			  rs = pstmt.executeQuery();
 			  
 			  if(rs.next()) {  
-				  
-				member = new MemberDto(
-				rs.getString("memberid"),
-				 rs.getString("membername"),
-				 rs.getString("memberemail"),
-				 rs.getString("memberpw")
-				);  
+				  member = new MemberDto();
+				  member.setMemberid(rs.getString("memberid"));
+				  member.setMemberpw(rs.getString("memberpw"));
+				  member.setMembername(rs.getString("membername"));
+				  member.setMemberemail(rs.getString("memberemail"));
 			  }
-
-	
 		  } catch(Exception e) {
 			
 			e.printStackTrace();
@@ -207,9 +202,7 @@ public class MemberDao {
 			}
 		}
 
-		return member;  //1 나오면
-		
-		
+		return member; 
 		
 	}
 	
@@ -256,5 +249,4 @@ public class MemberDao {
 	return result;
 
 	}
-	
 }

@@ -250,6 +250,7 @@ public class BoardController extends HttpServlet {
 			 
 	// 회원정보 수정 폼 이동
 		 else if(comm.equals("/memberEdit.do")) {
+			    session = request.getSession(false); // 기존 세션 가져오기
 			    String sid = (session != null) ? (String) session.getAttribute("sid") : null;
 
 			    if (sid != null) {
@@ -285,21 +286,26 @@ public class BoardController extends HttpServlet {
 	            }
 	        
 		 } else if(comm.equals("/commentOk.do")) { //댓글 등록요청
-				request.setCharacterEncoding("utf-8");
-				
-				String bnum = request.getParameter("bnum"); //원글
-				String comment = request.getParameter("comment"); //댓글
-				
-				session = request.getSession(false); // 기존 세션 가져오기, 없으면 null
-				if(session == null || session.getAttribute("sid") == null) {
-				    response.sendRedirect("login.do?msg=2"); // 로그인 안 되어 있음
-				    return;
-				}
-
-				String commentId = (String) session.getAttribute("sid");
-				boardDao.commentWrite(bnum, commentId, comment);
-				response.sendRedirect("content.do?bnum=" + bnum);
-				return;
+ request.setCharacterEncoding("utf-8");
+			 
+			 String memberid = request.getParameter("memberid");        // form에서 보낸 데이터 꺼내기
+			 String memberpw = request.getParameter("memberpw");
+			 String membername = request.getParameter("membername");
+			 String memberemail = request.getParameter("memberemail");
+			 
+			 MemberDto member = new MemberDto(memberid, memberpw, membername, memberemail);     // DTO에 담기
+			 		
+			int result = memberDao.updateMember(member);   	// DAO 호출해서 DB 업데이트 실행
+					 
+			 if (result > 0) {
+			        request.setAttribute("msg", "회원정보가 수정되었습니다.");
+			    } else {
+			        request.setAttribute("msg", "수정 실패. 다시 시도해주세요.");
+			    }
+			 
+			 request.setAttribute("memberDto", member);   // 다시 수정 페이지로 이동 (수정된 값 보여주기)
+			 viewPage = "memberEdit.jsp";
+			 
 			
 		 } else {
 			 viewPage="insert.jsp";

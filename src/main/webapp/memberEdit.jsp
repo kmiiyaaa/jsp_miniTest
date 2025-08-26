@@ -3,7 +3,8 @@
 <%@taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page import="dto.MemberDto" %>
 <%
-    MemberDto member = (MemberDto) request.getAttribute("memberDto");
+    MemberDto member = (MemberDto) request.getAttribute("memberDto"); 
+ //컨트롤러에서 request.setAttribute("memberDto", member) 했기 때문에  memberDto 로 바로 접근 가능
 %>
 <!DOCTYPE html>
 <html>
